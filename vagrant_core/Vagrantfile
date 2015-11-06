@@ -1,0 +1,105 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+
+    # Disable the synced folder
+    # Note, normally this vm would have a shared folder location uner /vagrant 
+    # but I had issues getting this to work with fedora so I disabled it :( 
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+ 
+    # Virtualbox settings 
+    # For now I just gave it a name 
+    config.vm.provider "virtualbox" do |v|
+        v.name = "core_vm"
+    end
+
+    # ---------------------------------- Define box type -------------------------------------
+
+    # Every Vagrant development environment requires a box. You can search for
+    config.vm.box = "box-cutter/fedora20"
+
+    # ------------------------------------- SSH Rules ----------------------------------------
+    # Enables root login 
+    config.ssh.forward_x11 = true 
+
+    # ------------------------------------ Provisioning -------------------------------------
+
+    # Anything you do directly to config vm will apply to all vms
+    # config.vm.provision "shell", inline: "echo Box Is Live!"
+    config.vm.provision "shell" do |s| 
+        s.inline = "echo Box Is Live!"
+        s.inline = <<-SHELL 
+            mkdir tmp
+            chown vagrant tmp
+        SHELL
+    end
+
+    # ---------------------------- Copy files before install to VM ---------------------------- 
+    config.vm.provision "file", source: "./assets/core-daemon-4.8-1.fc20.x86_64.rpm", destination: "/home/vagrant/tmp/core-daemon-4.8-1.fc20.x86_64.rpm"
+    config.vm.provision "file", source: "./assets/core-gui-4.8-1.fc20.noarch.rpm", destination: "/home/vagrant/tmp/core-gui-4.8-1.fc20.noarch.rpm"
+
+    # Install Stuff
+    config.vm.provision "install", type: "shell" do |s|
+        s.inline = <<-SHELL
+            yum install vim -y                   # Obviously we want vim on here :)
+            yum install tmux -y                  # I like tumux - this is like screen
+            yum install wireshark-gnome -y       # Wireshark
+            yum install xauth -y                 # Need this for X-Forwarding
+            yum install dejavu-lgc-sans-fonts -y # Need this because of font issue 
+            yum install gnome-terminal -y        # Need this to launch terminal in core 
+            yum install dbus-x11 -y              # Also need this to launch termianl in core
+            yum install /home/vagrant/tmp/core-daemon-4.8-1.fc20.x86_64.rpm -y  # The core deamon
+            yum install /home/vagrant/tmp/core-gui-4.8-1.fc20.noarch.rpm -y     # The core gui
+            yum install tkimg -y                                                # Core gui suggests this be installed
+            usermod -aG wireshark vagrant        # Allow user vagrant to run wireshark
+        SHELL
+    end
+
+    # This points to a script in the assests foler and runs it ( installs olsrd )  
+    config.vm.provision "shell", path: "assets/install-olsrd.sh"
+
+
+    # ---------------------------- Copy files after install to VM ----------------------------
+
+    # Note: files that need spectial permissions must be moved via shell script after they are copied 
+    config.vm.provision "file", source: "./assets/olsrd.conf", destination: "/home/vagrant/tmp/olsrd.conf"
+    config.vm.provision "file", source: "./assets/network", destination: "/home/vagrant/tmp/network"
+    config.vm.provision "file", source: "./assets/drone-icon.gif", destination: "/home/vagrant/tmp/drone-icon.gif"
+
+
+    # ------------------------------- Put things away with root ------------------------------
+
+    # Sadly the "file" provision is not allowed to put files into directories owned by root
+    # In order to achive this, I had to copy them over manually using a provision script
+    # If you are curious, YES all provisioning scripts are run as root! ( don't need sudo )    
+    config.vm.provision "cleanup", type: "shell" do |s|
+        s.inline = <<-SHELL
+            mv /home/vagrant/tmp/olsrd.conf /etc
+            mv /home/vagrant/tmp/network /etc/sysconfig 
+            mv /home/vagrant/tmp/drone-icon.gif /usr/share/core/icons/normal/
+            cp /usr/local/sbin/olsrd /usr/local/bin/
+            cp /usr/local/bin/olsrd /bin/
+        SHELL
+    end
+
+
+    # ------------------------------ Now we create multiple vms ------------------------------
+
+    # Define some globals 
+    $file_eth1 = "/etc/sysconfig/network-scripts/ifcfg-enp0s8"
+
+    config.vm.define "core" do |core|
+        # a.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)"
+        core.vm.network "private_network", ip: "192.168.3.2"
+        core.vm.provision "network_setup", type: "shell", inline: <<-SHELL
+            grep -q -F 'IPV6INIT=yes' #{$file_eth1} || echo 'IPV6INIT=yes' >> #{$file_eth1} 
+            grep -q -F 'IPV6ADDR=3000::2/128' #{$file_eth1} || echo 'IPV6ADDR=3000::2/128' >> #{$file_eth1}
+            #service network restart
+        SHELL
+    end 
+end

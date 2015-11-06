@@ -1,0 +1,98 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure(2) do |config|
+
+
+    # ---------------------------------- Define box type -------------------------------------
+
+    # Every Vagrant development environment requires a box. You can search for
+    config.vm.box = "puphpet/centos65-x64"
+
+    # Enables root login 
+    config.ssh.forward_x11 = true 
+
+    # ------------------------------------ Provisioning -------------------------------------
+
+    # Anything you do directly to config vm will apply to all vms
+    #config.vm.provision "shell", inline: "echo Box Is Live!"
+    config.vm.provision "shell" do |s| 
+        s.inline = "echo Box Is Live!"
+        s.inline = <<-SHELL 
+            mkdir tmp
+            chown vagrant tmp
+        SHELL
+    end
+
+    # Install Stuff
+    config.vm.provision "install", type: "shell" do |s|
+        s.inline = <<-SHELL
+            yum install vim -y                   # Obviously we want vim on here :)
+            yum install tmux -y                  # I like tumux - this is like screen
+            yum install wireshark-gnome -y       # Wireshark
+            yum install xauth -y                 # Need this for X-Forwarding
+            yum install dejavu-lgc-sans-fonts -y # Need this because of font issue 
+        SHELL
+    end
+
+    config.vm.provision "shell", path: "assets/install-olsrd.sh"
+
+
+    # ----------------------------------- Copy files to VM -----------------------------------
+
+    # Note: files that need spectial permissions must be moved via shell script after they are copied 
+    config.vm.provision "file", source: "./assets/olsrd.conf", destination: "/home/vagrant/tmp/olsrd.conf"
+    config.vm.provision "file", source: "./assets/network", destination: "/home/vagrant/tmp/network"
+
+
+    # ------------------------------- Put things away with root ------------------------------
+
+    config.vm.provision "cleanup", type: "shell" do |s|
+        s.inline = <<-SHELL
+            mv /home/vagrant/tmp/olsrd.conf /etc
+            mv /home/vagrant/tmp/network /etc/sysconfig 
+        SHELL
+    end
+
+
+    # ------------------------------ Now we create multiple vms ------------------------------
+
+    # Define some globals 
+    $file_eth1 = "/etc/sysconfig/network-scripts/ifcfg-eth1"
+
+    config.vm.define "a" do |a|
+        # a.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)"
+        a.vm.network "private_network", ip: "192.168.3.2"
+        a.vm.provision "network_setup", type: "shell", inline: <<-SHELL
+            grep -q -F 'IPV6INIT=yes' #{$file_eth1} || echo 'IPV6INIT=yes' >> #{$file_eth1} 
+            grep -q -F 'IPV6ADDR=3000::2/128' #{$file_eth1} || echo 'IPV6ADDR=3000::2/128' >> #{$file_eth1}
+            service network restart
+            #sudo olsrd -f &
+        SHELL
+    end
+
+    config.vm.define "b" do |b|
+        b.vm.network "private_network", ip: "192.168.3.3"
+        b.vm.provision "network_setup", type: "shell", inline: <<-SHELL
+            grep -q -F 'IPV6INIT=yes' #{$file_eth1} || echo 'IPV6INIT=yes' >> #{$file_eth1} 
+            grep -q -F 'IPV6ADDR=3000::3/128' #{$file_eth1} || echo 'IPV6ADDR=3000::3/128' >> #{$file_eth1}
+            service network restart
+            #sudo olsrd & 
+        SHELL
+    end
+
+    config.vm.define "c" do |c|
+        c.vm.network "private_network", ip: "192.168.3.4"
+        c.vm.provision "network_setup", type: "shell", inline: <<-SHELL
+            grep -q -F 'IPV6INIT=yes' #{$file_eth1} || echo 'IPV6INIT=yes' >> #{$file_eth1} 
+            grep -q -F 'IPV6ADDR=3000::5/128' #{$file_eth1} || echo 'IPV6ADDR=3000::5/128' >> #{$file_eth1}
+            service network restart 
+            #sudo olsrd &
+        SHELL
+    end
+
+end
