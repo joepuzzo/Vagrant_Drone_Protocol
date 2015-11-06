@@ -1,0 +1,1 @@
+This directory containes a vagrant file that will build three CentOS vms a, b, and c. These are all installed with wireshark and the olsrd daemon.
