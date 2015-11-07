@@ -1,4 +1,4 @@
-. First you will need to install VirtualBox and Vagrant onto your machine
+1. First you will need to install VirtualBox and Vagrant onto your machine
 
     [Get Vagrant Here](https://www.vagrantup.com)
     
