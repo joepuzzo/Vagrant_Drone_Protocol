@@ -4,11 +4,7 @@
     
     [Get VirtualBox Here](https://www.virtualbox.org/wiki/Downloads) 
     
-    Or if you're running Lixux you may be able to simply isntall using pkg manager.  
-    If running Ubuntu the following will install vagrant and VirtualBox.
-    ```
-    $ apt-get install vagrant     
-    ```
+    Note: if you're running Lixux you may try to install vagrant using your package manager. This may work fine, but it is suggested that you install it from the link above. I have personally run into version isues when attempting to install using `apt-get` on an Ubuntu machine. 
 
 2. Download or clone the repository to your machine. 
     ```
