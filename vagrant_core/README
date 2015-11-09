@@ -1,1 +1,0 @@
-This directory holds everything you need to run core. The assets folder contains everything required. The Vagrnat file will build a Fedora 20 VM using virtualbox and will install all the necessary tools.
