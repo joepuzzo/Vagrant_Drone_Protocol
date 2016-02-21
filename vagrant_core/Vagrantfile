@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
     # ---------------------------------- Define box type -------------------------------------
 
     # Every Vagrant development environment requires a box. You can search for
-    config.vm.box = "box-cutter/fedora20"
+    config.vm.box = "clusterhq/fedora20-updated"
 
     # ------------------------------------- SSH Rules ----------------------------------------
     # Enables root login 
