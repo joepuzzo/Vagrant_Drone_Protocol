@@ -84,7 +84,7 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "./assets/network", destination: "/home/vagrant/tmp/network"
     config.vm.provision "file", source: "./assets/drone-icon.gif", destination: "/home/vagrant/tmp/drone-icon.gif"
     config.vm.provision "file", source: "./assets/launchcore.sh", destination: "/home/vagrant/launchcore.sh"
-
+    config.vm.provision "file", source: "./assets/nodes.conf" , destination: "/home/vagrant/tmp/nodes.conf"
 
     # ------------------------------- Put things away with root ------------------------------
 
@@ -96,6 +96,7 @@ Vagrant.configure(2) do |config|
             mv /home/vagrant/tmp/olsrd.conf /etc
             mv /home/vagrant/tmp/network /etc/sysconfig 
             mv /home/vagrant/tmp/drone-icon.gif /usr/share/core/icons/normal/
+	    mv /home/vagrant/tmp/nodes.conf 	/home/vagrant/.core/nodes.conf
             cp /usr/local/sbin/olsrd /usr/local/bin/
             cp /usr/local/bin/olsrd /bin/
         SHELL
