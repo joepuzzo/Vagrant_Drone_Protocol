@@ -45,7 +45,9 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "./assets/core-gui-4.8-1.fc21.noarch.rpm", destination: "/home/vagrant/tmp/core-gui-4.8-1.fc21.noarch.rpm"
     config.vm.provision "file", source: "./assets/bonnmotion-2.1.3.zip", destination: "/home/vagrant/tmp/bonnmotion-2.1.3.zip"
     config.vm.provision "file", source: "./assets/worldwind-2.0.0.zip" , destination: "/home/vagrant/tmp/worldwind-2.0.0.zip"
-
+    config.vm.provision "file", source: "./assets/coreBackground.png" , destination: "/home/vagrant/tmp/coreBackground.png"
+    config.vm.provision "file", source: "./assets/demo_1.imn" , destination: "/home/vagrant/"
+    config.vm.provision "file", source: "./assets/nodes.conf" , destination: "/home/vagrant/.core/"
     # Install Stuff
     config.vm.provision "install", type: "shell" do |s|
         s.inline = <<-SHELL
