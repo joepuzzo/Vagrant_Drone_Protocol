@@ -71,6 +71,8 @@ Vagrant.configure(2) do |config|
             unzip bonnmotion-2.1.3.zip           # Unzip the bonn motion zip
             sh /home/vagrant/tmp/bonnmotion-2.1.3/install < "/usr/bin" # Install BonnMotion 
             ln -s /home/vagrant/tmp/bonnmotion-2.1.3/bin/bm /usr/bin/bm # Create a sym link to bm becuase install script sucks
+            git config --global user.name "joepuzzo"
+            git config --global user.email "jgpuzzo@metrocast.net"
             git clone https://github.com/joepuzzo/collision_detection.git
             yum install nodejs -y 
         SHELL
