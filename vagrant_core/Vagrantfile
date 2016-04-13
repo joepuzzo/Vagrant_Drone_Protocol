@@ -46,8 +46,8 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "./assets/bonnmotion-2.1.3.zip", destination: "/home/vagrant/tmp/bonnmotion-2.1.3.zip"
     config.vm.provision "file", source: "./assets/worldwind-2.0.0.zip" , destination: "/home/vagrant/tmp/worldwind-2.0.0.zip"
     config.vm.provision "file", source: "./assets/coreBackground.png" , destination: "/home/vagrant/tmp/coreBackground.png"
-    config.vm.provision "file", source: "./assets/demo_1.imn" , destination: "/home/vagrant/"
-    config.vm.provision "file", source: "./assets/nodes.conf" , destination: "/home/vagrant/.core/"
+    config.vm.provision "file", source: "./assets/demo_1.imn" , destination: "/home/vagrant/demo_1.imn"
+    config.vm.provision "file", source: "./assets/nodes.conf" , destination: "/home/vagrant/.core/nodes.conf"
     # Install Stuff
     config.vm.provision "install", type: "shell" do |s|
         s.inline = <<-SHELL
@@ -86,11 +86,15 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "./assets/olsrd.conf", destination: "/home/vagrant/tmp/olsrd.conf"
     config.vm.provision "file", source: "./assets/network", destination: "/home/vagrant/tmp/network"
     config.vm.provision "file", source: "./assets/drone-icon.gif", destination: "/home/vagrant/tmp/drone-icon.gif"
+    config.vm.provision "file", source: "./assets/drone-icon-green.png", destination: "/home/vagrant/tmp/drone-icon-green.png"
+    config.vm.provision "file", source: "./assets/drone-icon-red.png", destination: "/home/vagrant/tmp/drone-icon-red.png"
+    config.vm.provision "file", source: "./assets/drone-icon-orange.png", destination: "/home/vagrant/tmp/drone-icon-orange.png"
     config.vm.provision "file", source: "./assets/launchcore.sh", destination: "/home/vagrant/launchcore.sh"
     config.vm.provision "file", source: "./assets/nodes.conf" , destination: "/home/vagrant/tmp/nodes.conf"
     config.vm.provision "file", source: "./assets/setgateway.sh" , destination: "/home/vagrant/setgateway.sh"
     config.vm.provision "file", source: "./assets/core.conf" , destination: "/home/vagrant/tmp/core.conf"
     config.vm.provision "file", source: "./assets/configurenetwork.sh" , destination: "/home/vagrant/configurenetwork.sh"
+    config.vm.provision "file", source: "./assets/example1" , destination: "/home/vagrant/tmp/example1"
 
 
 
@@ -103,7 +107,6 @@ Vagrant.configure(2) do |config|
         s.inline = <<-SHELL
             mv /home/vagrant/tmp/olsrd.conf /etc/olsrd
             mv /home/vagrant/tmp/network /etc/sysconfig 
-            mv /home/vagrant/tmp/drone-icon.gif /usr/share/core/icons/normal/
 	        mv /home/vagrant/tmp/nodes.conf 	/home/vagrant/.core/nodes.conf
 	        mv /home/vagrant/tmp/core.conf 	/etc/core
             cp /usr/local/sbin/olsrd /usr/local/bin/
