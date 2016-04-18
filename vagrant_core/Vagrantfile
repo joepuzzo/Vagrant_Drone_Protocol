@@ -109,10 +109,11 @@ Vagrant.configure(2) do |config|
         s.inline = <<-SHELL
             mv /home/vagrant/tmp/olsrd.conf /etc/olsrd
             mv /home/vagrant/tmp/network /etc/sysconfig 
-	        mv /home/vagrant/tmp/nodes.conf 	/home/vagrant/.core/nodes.conf
-	        mv /home/vagrant/tmp/core.conf 	/etc/core
+	          mv /home/vagrant/tmp/nodes.conf 	/home/vagrant/.core/nodes.conf
+	          mv /home/vagrant/tmp/core.conf 	/etc/core
             cp /usr/local/sbin/olsrd /usr/local/bin/
             cp /usr/local/bin/olsrd /bin/
+            cp /home/vagrant/tmp/drone-icon.gif /usr/share/core/icons/normal/
         SHELL
     end
 
